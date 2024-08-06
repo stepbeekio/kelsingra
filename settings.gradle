@@ -1,0 +1,4 @@
+rootProject.name = 'kelsingra'
+include("server")
+include("lib")
+include("example-service")
