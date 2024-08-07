@@ -23,6 +23,7 @@ sealed class InterceptionResult {
 
 interface TenantInterceptorService {
     fun shouldIntercept(tenantId: TenantId): InterceptionResult
+    fun shouldProcessKafkaRecord(tenantId: TenantId): Boolean
 }
 
 interface Refreshable {
@@ -50,9 +51,13 @@ class InMemoryTenantInterceptor(
         }
     }
 
+    override fun shouldProcessKafkaRecord(tenantId: TenantId): Boolean =
+        tenantResults[tenantId] == null
+
     override fun refresh() {
         val results = client.getByService(serviceKey)
         tenantResults.clear()
+
         results.data
             .filter { it.sandboxKey != sandboxKey }
             .forEach { tenantResults[it.tenantId] = it.toDetails() }
@@ -62,3 +67,11 @@ class InMemoryTenantInterceptor(
         private val logger = LoggerFactory.getLogger(InMemoryTenantInterceptor::class.java)
     }
 }
+
+object NoOpInterceptorService : TenantInterceptorService {
+    override fun shouldIntercept(tenantId: TenantId): InterceptionResult = InterceptionResult.NoOp
+
+    override fun shouldProcessKafkaRecord(tenantId: TenantId): Boolean = true
+
+}
+

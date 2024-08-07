@@ -13,6 +13,7 @@ class Demo {
     private val reviewClient = RestClient.create("http://localhost:8082")
     private val otherReviewClient = RestClient.create("http://localhost:8083")
 
+
     @Test
     fun `run demo`() {
         println("Calling dev example service without tenant id")
@@ -40,6 +41,18 @@ class Demo {
 
         println("Calling dev example service with review tenant id")
         devClient.get().uri("/example?name=Stephen").header("x-tenant-id", reviewTenant).exchange { _, clientResponse ->
+            val body = clientResponse.body.readAllBytes().decodeToString()
+            println(body)
+        }
+
+        println("Posting example service without review tenant id")
+        devClient.post().uri("/example?name=Stephen").exchange { _, clientResponse ->
+            val body = clientResponse.body.readAllBytes().decodeToString()
+            println(body)
+        }
+
+        println("Posting example service with review tenant id")
+        devClient.post().uri("/example?name=Stephen").header("x-tenant-id", reviewTenant).exchange { _, clientResponse ->
             val body = clientResponse.body.readAllBytes().decodeToString()
             println(body)
         }

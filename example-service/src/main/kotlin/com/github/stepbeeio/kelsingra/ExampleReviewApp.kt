@@ -10,5 +10,6 @@ fun main(args: Array<String>) {
     System.setProperty("server.port", "8082")
     System.setProperty("interceptor.client.sandbox", "review")
     System.setProperty("spring.application.name", "example-review-app")
+    System.setProperty("spring.kafka.consumer.group-id", "review-group")
     runApplication<ExampleReviewApp>(*args)
 }
