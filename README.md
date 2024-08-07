@@ -38,3 +38,10 @@ For persistence, Kelsingra on the server uses postgresql and kafka. Upon receivi
 ### Client Server Connection
 
 When connecting to kelsingra from the client instance, one uses the web ui that's running locally. Upon configuring the instance, kelsingra will open a websocket request to the server. This websocket connection will allow the kelsingra client to subscribe to multiple service/tenant combinations to empower the user to run a subset of the system locally.
+
+
+TODO:
+* local host tunnel
+* trace context propagation
+* resttemplate header setting
+* basic ui
