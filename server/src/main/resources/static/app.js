@@ -1,15 +1,39 @@
 // Trigger exmaple requets on console with
 // curl -v  -X POST http://localhost:8080/send-request\?serviceKey\=example-service\&sandboxKey\=review
 const stompClient = new StompJs.Client({
-    brokerURL: 'ws://localhost:8080/tunnel'
+    brokerURL: '/tunnel'
 });
+
+function forwardRequest(request) {
+    // TODO make request from browser to localhost that's set up.
+//     data class Request(val id: UUID, val serviceKey: String, val sandboxKey: String, val path: String, val method: String, val body: String,)
+    $.ajax('http://localhost:8082' + request.path, {
+        method: request.method,
+        success: function (data, textStatus, xhr) {
+            console.log(data);
+            console.log(textStatus);
+            console.log(xhr.status);
+            let body = JSON.stringify({statusCode: xhr.status, body: `"${JSON.stringify(data)}"`});
+            stompClient.publish({
+                destination: "/app/tunnel/requests/" + request.id,
+                body: body
+            });
+            let selector = `#${request.id} > [data-response]`;
+            console.log('Setting response with ' + selector);
+            $(selector).text(body);
+        },
+        complete: function (data, textStatus, xhr) {
+            console.log(xhr.status)
+        }
+    })
+}
 
 stompClient.onConnect = (frame) => {
     setConnected(true);
     console.log('Connected: ' + frame);
     stompClient.subscribe('/topic/services/example-service/sandboxes/review', (request) => {
         showRequest(request.body);
-        setIdentifier(JSON.parse(request.body).id)
+        forwardRequest(JSON.parse(request.body));
     });
 };
 

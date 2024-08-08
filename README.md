@@ -43,16 +43,10 @@ When connecting to kelsingra from the client instance, one uses the web ui that'
 ## TODO:
 * kafka consumer group auto-overrides
 * local host tunnel
-  * How do I do this?
-  * Redirect from services wraps request up in standard data type
-  * Request made to server
-  * saves to redis
-  * pub/sub routes to appropriate instance
-  * instance with open channel routes to localhost
-  * response sent back to server
-  * entry in redis is updated
-  * original ingress polls redis for update
-  * sends response back
+  * need to setup redirect to point to the kelsingra server
+  * need to add a permissive cors policy
+  * need to make request to other server from browser using CORs
+  * 
 * trace context propagation
 * resttemplate header setting
 * basic ui

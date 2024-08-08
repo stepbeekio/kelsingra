@@ -28,7 +28,7 @@ class TunnelController(
     @ResponseBody
     @PostMapping("/send-request")
     fun sendRequest(@RequestParam serviceKey: String, @RequestParam sandboxKey: String): Response {
-        return persistableRequestService.send(Request(UUID.randomUUID(), serviceKey, sandboxKey, "/example", "GET", ""))
+        return persistableRequestService.send(Request(UUID.randomUUID(), serviceKey, sandboxKey, "/example?name=Stephen", "GET", ""))
     }
 
     companion object {
