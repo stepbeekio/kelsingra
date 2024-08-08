@@ -1,3 +1,5 @@
+// Trigger exmaple requets on console with
+// curl -v  -X POST http://localhost:8080/send-request\?serviceKey\=example-service\&sandboxKey\=review
 const stompClient = new StompJs.Client({
     brokerURL: 'ws://localhost:8080/tunnel'
 });
@@ -5,9 +7,9 @@ const stompClient = new StompJs.Client({
 stompClient.onConnect = (frame) => {
     setConnected(true);
     console.log('Connected: ' + frame);
-    stompClient.subscribe('/topic/services/example-service/sandboxes/review', (greeting) => {
-        showGreeting(greeting.body);
-        setIdentifier(JSON.parse(greeting.body).id)
+    stompClient.subscribe('/topic/services/example-service/sandboxes/review', (request) => {
+        showRequest(request.body);
+        setIdentifier(JSON.parse(request.body).id)
     });
 };
 
@@ -47,14 +49,19 @@ function setIdentifier(id) {
 }
 
 function sendName() {
+    let body = JSON.stringify({'statusCode': Number.parseInt($('#status').val()), 'body': `\`${$('#body').val()}\``});
+    let identifier = $('#identifier').val();
     stompClient.publish({
-        destination: "/app/tunnel/requests/" +  $('#identifier').val(),
-        body: JSON.stringify({'statusCode': Number.parseInt($('#status').val()), 'body': `\`${$('#body').val()}\``})
+        destination: "/app/tunnel/requests/" + identifier,
+        body: body
     });
+    let selector = `#${identifier} > [data-response]`;
+    console.log('Setting response with ' + selector);
+    $(selector).text(body);
 }
 
-function showGreeting(message) {
-    $("#greetings").append("<tr><td>" + message + "</td></tr>");
+function showRequest(message) {
+    $("#greetings").append(`<tr id='${JSON.parse(message).id}'><td>${message}</td><td data-response></td></tr>`);
 }
 
 $(function () {
