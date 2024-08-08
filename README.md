@@ -40,8 +40,19 @@ For persistence, Kelsingra on the server uses postgresql and kafka. Upon receivi
 When connecting to kelsingra from the client instance, one uses the web ui that's running locally. Upon configuring the instance, kelsingra will open a websocket request to the server. This websocket connection will allow the kelsingra client to subscribe to multiple service/tenant combinations to empower the user to run a subset of the system locally.
 
 
-TODO:
+## TODO:
+* kafka consumer group auto-overrides
 * local host tunnel
+  * How do I do this?
+  * Redirect from services wraps request up in standard data type
+  * Request made to server
+  * saves to redis
+  * pub/sub routes to appropriate instance
+  * instance with open channel routes to localhost
+  * response sent back to server
+  * entry in redis is updated
+  * original ingress polls redis for update
+  * sends response back
 * trace context propagation
 * resttemplate header setting
 * basic ui
