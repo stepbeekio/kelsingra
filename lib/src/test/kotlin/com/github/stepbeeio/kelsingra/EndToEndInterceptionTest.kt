@@ -3,6 +3,7 @@ package com.github.stepbeeio.kelsingra
 import com.github.stepbeeio.kelsingra.model.InterceptionDetailResponse
 import com.github.stepbeeio.kelsingra.model.TenantInterceptionResponse
 import com.github.stepbeeio.kelsingra.servlet.TenantId
+import org.apache.catalina.valves.PersistentValve
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
@@ -53,8 +54,9 @@ class EndToEndInterceptionTest {
         stubTenantInterceptionClient.set(
             TenantInterceptionResponse(
                 listOf(
-                    InterceptionDetailResponse(TenantId(tenantId), "pr-123", "example.com")
-                )
+                    InterceptionDetailResponse(TenantId(tenantId), "pr-123", "example.com",)
+                ),
+                mainlineKeys = listOf("dev", "prod")
             )
         )
 

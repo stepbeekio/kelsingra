@@ -39,6 +39,6 @@ class RedisBackedInterceptionService(private val repository: InterceptionDetails
 
     override fun detailsForService(serviceKey: String): TenantInterceptionResponse {
         return repository.findByServiceKey(serviceKey)?.toDetailResponse()
-            ?: TenantInterceptionResponse(data = emptyList())
+            ?: TenantInterceptionResponse(data = emptyList(), mainlineKeys = PersistedInterceptionDetails.mainlineKeys)
     }
 }

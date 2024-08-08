@@ -43,12 +43,15 @@ data class PersistedInterceptionDetails(
             InterceptionDetailResponse(
                 TenantId(it),
                 sandboxKey,
-                redirectHost = redirectHost
+                redirectHost = redirectHost,
             )
-        }
+        },
+        mainlineKeys = mainlineKeys
     )
 
     companion object {
+        val mainlineKeys = listOf("dev", "prod")
+
         fun create(sandboxKey: String, serviceKey: String, redirectHost: String): PersistedInterceptionDetails =
             PersistedInterceptionDetails(
                 id = 0,

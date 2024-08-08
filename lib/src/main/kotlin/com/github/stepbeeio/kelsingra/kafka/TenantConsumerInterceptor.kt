@@ -30,7 +30,11 @@ class TenantConsumerInterceptor : ConsumerInterceptor<Any, Any> {
         return records
             .filter { record ->
                 val header = record.headers().find { it.key() == tenantHeader }
-                header != null && interceptorService.shouldProcessKafkaRecord(TenantId(header.value().decodeToString()))
+                if (header == null) {
+                    interceptorService.isMainline()
+                } else {
+                    interceptorService.shouldProcessKafkaRecord(TenantId(header.value().decodeToString()))
+                }
             }
             .groupBy { TopicPartition(it.topic(), it.partition()) }
             .let { ConsumerRecords(it) }

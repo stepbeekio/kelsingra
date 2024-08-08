@@ -4,7 +4,7 @@ import com.github.stepbeeio.kelsingra.model.TenantInterceptionResponse
 import com.github.stepbeeio.kelsingra.servlet.TenantInterceptionClient
 
 class StubTenantInterceptionClient : TenantInterceptionClient {
-    private var response: TenantInterceptionResponse = TenantInterceptionResponse(emptyList())
+    private var response: TenantInterceptionResponse = TenantInterceptionResponse(emptyList(), listOf("dev", "prod"))
 
     fun set(response: TenantInterceptionResponse) {
         this.response = response

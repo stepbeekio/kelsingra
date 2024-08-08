@@ -44,6 +44,7 @@ class KafkaConfig(
         val factory =
             ConcurrentKafkaListenerContainerFactory<String, String>()
         factory.consumerFactory = consumerFactory()
+
         return factory
     }
 
