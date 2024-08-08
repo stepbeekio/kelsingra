@@ -7,6 +7,7 @@ stompClient.onConnect = (frame) => {
     console.log('Connected: ' + frame);
     stompClient.subscribe('/topic/services/example-service/sandboxes/review', (greeting) => {
         showGreeting(greeting.body);
+        setIdentifier(JSON.parse(greeting.body).id)
     });
 };
 
@@ -40,10 +41,15 @@ function disconnect() {
     console.log("Disconnected");
 }
 
+
+function setIdentifier(id) {
+    $('#identifier').val(id);
+}
+
 function sendName() {
     stompClient.publish({
-        destination: "/app/tunnel/bf583fcc-5813-44f2-937c-4d86aa5fbeb7",
-        body: JSON.stringify({'statusCode': 200, 'body': 'body!'})
+        destination: "/app/tunnel/requests/" +  $('#identifier').val(),
+        body: JSON.stringify({'statusCode': Number.parseInt($('#status').val()), 'body': `\`${$('#body').val()}\``})
     });
 }
 

@@ -8,7 +8,10 @@ class RequestSendingClient(
     private val messagingTemplate: SimpMessagingTemplate,
 ) {
 
-    fun sendRequest(serviceKey: String, sandboxKey: String, request: Request) {
-        messagingTemplate.convertAndSend("/topic/services/$serviceKey/sandboxes/$sandboxKey", request)
+    fun sendRequest(request: Request) {
+        messagingTemplate.convertAndSend(
+            "/topic/services/${request.serviceKey}/sandboxes/${request.sandboxKey}",
+            request
+        )
     }
 }
