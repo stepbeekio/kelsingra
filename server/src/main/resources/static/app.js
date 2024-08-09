@@ -6,8 +6,10 @@ const stompClient = new StompJs.Client({
 
 function forwardRequest(request) {
     // TODO make request from browser to localhost that's set up.
+    let host = $('#host').val();
+    console.log('HOST: ' + host);
 //     data class Request(val id: UUID, val serviceKey: String, val sandboxKey: String, val path: String, val method: String, val body: String,)
-    $.ajax('http://localhost:8082' + request.path, {
+    $.ajax(host + request.path, {
         method: request.method,
         success: function (data, textStatus, xhr) {
             console.log(data);
@@ -31,10 +33,6 @@ function forwardRequest(request) {
 stompClient.onConnect = (frame) => {
     setConnected(true);
     console.log('Connected: ' + frame);
-    stompClient.subscribe('/topic/services/example-service/sandboxes/review', (request) => {
-        showRequest(request.body);
-        forwardRequest(JSON.parse(request.body));
-    });
 };
 
 stompClient.onWebSocketError = (error) => {
@@ -47,17 +45,19 @@ stompClient.onStompError = (frame) => {
 };
 
 function setConnected(connected) {
-    $("#connect").prop("disabled", connected);
+    $("#connect").prop("disabled", !connected);
     $("#disconnect").prop("disabled", !connected);
     if (connected) {
         $("#conversation").show();
+        $("#subscription").show();
     } else {
-        $("#conversation").hide();
+        $("#subscription").hide();
     }
     $("#greetings").html("");
 }
 
 function connect() {
+    console.log('Connecting!')
     stompClient.activate();
 }
 
@@ -65,6 +65,15 @@ function disconnect() {
     stompClient.deactivate();
     setConnected(false);
     console.log("Disconnected");
+}
+
+function subscribe() {
+    let serviceKey = $('#serviceKey').val();
+    let sandboxKey = $('#sandboxKey').val();
+    stompClient.subscribe(`/topic/services/${serviceKey}/sandboxes/${sandboxKey}`, (request) => {
+        showRequest(request.body);
+        forwardRequest(JSON.parse(request.body));
+    });
 }
 
 
@@ -89,8 +98,12 @@ function showRequest(message) {
 }
 
 $(function () {
-    $("form").on('submit', (e) => e.preventDefault());
-    $("#connect").click(() => connect());
+    $("#connect")
+        .on('submit', (e) => e.preventDefault())
+        .click(() => subscribe());
     $("#disconnect").click(() => disconnect());
-    $("#send").click(() => sendName());
+
+    $( document ).ready(function() {
+       connect();
+    });
 });

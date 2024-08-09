@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link href="/main.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="https://unpkg.com/htmx.org@2.0.1"></script>
     <script src="https://cdn.jsdelivr.net/npm/@stomp/stompjs@7.0.0/bundles/stomp.umd.min.js"></script>
     <script src="/app.js"></script>
 </head>
@@ -17,30 +18,27 @@
         <div class="col-md-6">
             <form class="form-inline">
                 <div class="form-group">
-                    <label for="connect">WebSocket connection:</label>
-                    <button id="connect" class="btn btn-default" type="submit">Connect</button>
                     <button id="disconnect" class="btn btn-default" type="submit" disabled="disabled">Disconnect
                     </button>
                 </div>
             </form>
         </div>
         <div class="col-md-6">
-            <form class="form-inline">
+            <div class="form-inline" id="subscription">
                 <div class="form-group">
-                    <label for="identifier">What is your request id?</label>
-                    <input type="text" id="identifier" class="form-control" placeholder="Request identifier">
+                    <label for="serviceKey">What is your service key?</label>
+                    <input type="text" id="serviceKey" class="form-control" value="example-service">
                 </div>
                 <div class="form-group">
-                    <label for="status">What is your status code?</label>
-                    <input type="text" id="status" class="form-control" placeholder="200" value="200">
+                    <label for="sandboxKey">What is your sandbox key?</label>
+                    <input type="text" id="sandboxKey" class="form-control" value="review">
                 </div>
-
                 <div class="form-group">
-                    <label for="body">What is your request body?</label>
-                    <input type="text" id="body" class="form-control" value="{'name': 'Stephen'}">
+                    <label for="host">What is your host override?</label>
+                    <input type="text" id="host" class="form-control" value="http://localhost:8082">
                 </div>
-                <button id="send" class="btn btn-default" type="submit">Send</button>
-            </form>
+                <button id="connect" class="btn btn-default" type="button">Connect</button>
+            </div>
         </div>
     </div>
     <div class="row">
