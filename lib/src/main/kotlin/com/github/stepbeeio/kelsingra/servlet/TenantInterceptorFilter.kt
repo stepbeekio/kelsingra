@@ -7,7 +7,6 @@ import org.springframework.http.HttpMethod
 import org.springframework.web.client.RestClient
 import org.springframework.web.filter.OncePerRequestFilter
 import org.springframework.web.util.UriComponentsBuilder
-import java.net.URI
 
 class TenantInterceptorFilter(
     private val headerName: String,
@@ -29,12 +28,14 @@ class TenantInterceptorFilter(
                     intercept(result.details, request, response)
                 }
 
+                is InterceptionResult.LocalhostInterception -> tenantInterceptorService.forwardLocalhost(result.details, request, response)
                 InterceptionResult.NoOp -> filterChain.doFilter(request, response)
             }
         } else {
             filterChain.doFilter(request, response)
         }
     }
+
 
     private fun intercept(details: InterceptionDetails, request: HttpServletRequest, response: HttpServletResponse) {
         val redirectUrl = UriComponentsBuilder.fromHttpUrl(details.uriFromOriginal(request.requestURI)).query(request.queryString)

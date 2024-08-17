@@ -5,7 +5,7 @@ import org.springframework.messaging.handler.annotation.DestinationVariable
 import org.springframework.messaging.handler.annotation.MessageMapping
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.ResponseBody
 import java.util.*
 
@@ -27,8 +27,8 @@ class TunnelController(
 
     @ResponseBody
     @PostMapping("/send-request")
-    fun sendRequest(@RequestParam serviceKey: String, @RequestParam sandboxKey: String): Response {
-        return persistableRequestService.send(Request(UUID.randomUUID(), serviceKey, sandboxKey, "/example?name=Stephen", "GET", ""))
+    fun sendRequest(@RequestBody request: Request): Response {
+        return persistableRequestService.send(request)
     }
 
     companion object {

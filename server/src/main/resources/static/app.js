@@ -4,6 +4,25 @@ const stompClient = new StompJs.Client({
     brokerURL: '/tunnel'
 });
 
+function headers(xhr) {
+    const headers = xhr.getAllResponseHeaders();
+
+    // Convert the header string into an array
+    // of individual headers
+    const arr = headers.trim().split(/[\r\n]+/);
+
+    // Create a map of header names to values
+    const headerMap = {};
+    arr.forEach((line) => {
+        const parts = line.split(": ");
+        const header = parts.shift();
+        const value = parts.join(": ");
+        headerMap[header] = value;
+    });
+
+    return headerMap
+}
+
 function forwardRequest(request) {
     // TODO make request from browser to localhost that's set up.
     let host = $('#host').val();
@@ -15,7 +34,7 @@ function forwardRequest(request) {
             console.log(data);
             console.log(textStatus);
             console.log(xhr.status);
-            let body = JSON.stringify({statusCode: xhr.status, body: `"${JSON.stringify(data)}"`});
+            let body = JSON.stringify({statusCode: xhr.status, body: `"${JSON.stringify(data)}"`, headers: headers(xhr)});
             stompClient.publish({
                 destination: "/app/tunnel/requests/" + request.id,
                 body: body

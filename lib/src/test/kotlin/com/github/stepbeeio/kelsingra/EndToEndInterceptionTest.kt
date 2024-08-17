@@ -54,7 +54,7 @@ class EndToEndInterceptionTest {
         stubTenantInterceptionClient.set(
             TenantInterceptionResponse(
                 listOf(
-                    InterceptionDetailResponse(TenantId(tenantId), "pr-123", "example.com",)
+                    InterceptionDetailResponse(TenantId(tenantId), "pr-123", "example.com", false)
                 ),
                 mainlineKeys = listOf("dev", "prod")
             )

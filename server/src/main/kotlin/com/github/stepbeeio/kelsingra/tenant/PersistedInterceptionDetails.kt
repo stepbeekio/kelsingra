@@ -21,6 +21,7 @@ data class PersistedInterceptionDetails(
     @Indexed
     override val serviceKey: String,
     val redirectHost: String,
+    val isLocalhostRedirect: Boolean,
     val tenants: MutableSet<String> = mutableSetOf(),
     val createdAt: Instant,
     @LastModifiedDate
@@ -44,6 +45,7 @@ data class PersistedInterceptionDetails(
                 TenantId(it),
                 sandboxKey,
                 redirectHost = redirectHost,
+                isLocalhostRedirect = isLocalhostRedirect
             )
         },
         mainlineKeys = mainlineKeys
@@ -58,11 +60,24 @@ data class PersistedInterceptionDetails(
                 sandboxKey = sandboxKey,
                 serviceKey = serviceKey,
                 redirectHost = redirectHost,
+                isLocalhostRedirect = false,
                 tenants = mutableSetOf(),
                 createdAt = Instant.now(),
                 updatedAt = Instant.now(),
                 version = 1
             )
 
+        fun localhostRedirect(sandboxKey: String, serviceKey: String): PersistedInterceptionDetails =
+            PersistedInterceptionDetails(
+                id = 0,
+                sandboxKey = sandboxKey,
+                serviceKey = serviceKey,
+                redirectHost = "",
+                isLocalhostRedirect = true,
+                tenants = mutableSetOf(),
+                createdAt = Instant.now(),
+                updatedAt = Instant.now(),
+                version = 1
+            )
     }
 }

@@ -1,9 +1,7 @@
 package com.github.stepbeeio.kelsingra
 
-import okhttp3.OkHttpClient
 import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType
-import org.springframework.http.client.ClientHttpRequestFactory
 import org.springframework.web.client.RestClient
 import java.util.*
 
@@ -13,9 +11,8 @@ class Demo {
     private val reviewClient = RestClient.create("http://localhost:8082")
     private val otherReviewClient = RestClient.create("http://localhost:8083")
 
-
     @Test
-    fun `run demo`() {
+    fun `run review demo`() {
         println("Calling dev example service without tenant id")
         devClient.get().uri("/example?name=Stephen").exchange { _, clientResponse ->
             val body = clientResponse.body.readAllBytes().decodeToString()
@@ -25,7 +22,8 @@ class Demo {
         val reviewTenant = UUID.randomUUID().toString()
 
         println("Creating interception for $reviewTenant pointing to http://localhost:8082")
-        serverClient.put().uri("/interception-details").body(creationRequest(reviewTenant)).contentType(MediaType.APPLICATION_JSON).exchange { _, clientResponse ->
+        serverClient.put().uri("/interception-details").body(creationRequest("example", "review", reviewTenant))
+            .contentType(MediaType.APPLICATION_JSON).exchange { _, clientResponse ->
             val body = clientResponse.body.readAllBytes().decodeToString()
             println(body)
         }
@@ -52,10 +50,59 @@ class Demo {
         }
 
         println("Posting example service with review tenant id")
-        devClient.post().uri("/example?name=Stephen").header("x-tenant-id", reviewTenant).exchange { _, clientResponse ->
+        devClient.post().uri("/example?name=Stephen").header("x-tenant-id", reviewTenant)
+            .exchange { _, clientResponse ->
+                val body = clientResponse.body.readAllBytes().decodeToString()
+                println(body)
+            }
+    }
+
+
+    @Test
+    fun `run localhost demo`() {
+        // Remember to visit localhost:8080 to create an interception with service: example and sandbox: localhost.
+        println("Calling dev example service without tenant id")
+        devClient.get().uri("/example?name=Stephen").exchange { _, clientResponse ->
             val body = clientResponse.body.readAllBytes().decodeToString()
             println(body)
         }
+
+        val reviewTenant = UUID.randomUUID().toString()
+
+        println("Creating interception for $reviewTenant pointing to http://localhost:8082")
+        serverClient.put().uri("/interception-details").body(creationRequest("example", "localhost", reviewTenant, true))
+            .contentType(MediaType.APPLICATION_JSON).exchange { _, clientResponse ->
+            val body = clientResponse.body.readAllBytes().decodeToString()
+            println(body)
+        }
+
+        println("Refreshing the clients")
+        refresh()
+
+        println("Calling dev example service without tenant id (again)")
+        devClient.get().uri("/example?name=Stephen").exchange { _, clientResponse ->
+            val body = clientResponse.body.readAllBytes().decodeToString()
+            println(body)
+        }
+
+        println("Calling dev example service with review tenant id")
+        devClient.get().uri("/example?name=Stephen").header("x-tenant-id", reviewTenant).exchange { _, clientResponse ->
+            val body = clientResponse.body.readAllBytes().decodeToString()
+            println(body)
+        }
+
+        println("Posting example service without review tenant id")
+        devClient.post().uri("/example?name=Stephen").exchange { _, clientResponse ->
+            val body = clientResponse.body.readAllBytes().decodeToString()
+            println(body)
+        }
+
+        println("Posting example service with review tenant id")
+        devClient.post().uri("/example?name=Stephen").header("x-tenant-id", reviewTenant)
+            .exchange { _, clientResponse ->
+                val body = clientResponse.body.readAllBytes().decodeToString()
+                println(body)
+            }
     }
 
     private fun refresh() {
@@ -68,12 +115,18 @@ class Demo {
     }
 
 
-    private fun creationRequest(reviewTenant: String) = """
+    private fun creationRequest(
+        serviceKey: String,
+        sandboxKey: String,
+        reviewTenant: String,
+        localhostRedirect: Boolean = false
+    ) = """
                 {
                         "tenantId": "$reviewTenant",
-                        "sandboxKey": "review",
-                        "serviceKey": "example",
-                        "redirectHost": "http://localhost:8082"
+                        "sandboxKey": "$sandboxKey",
+                        "serviceKey": "$serviceKey",
+                        "redirectHost": "http://localhost:8082",
+                        "localhostRedirect": $localhostRedirect
                 }
             """.trimIndent()
 }

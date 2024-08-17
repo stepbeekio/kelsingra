@@ -6,12 +6,21 @@ import com.github.stepbeeio.kelsingra.model.TenantInterceptionResponse
 import org.springframework.stereotype.Service
 
 
-fun CreateInterceptionRequest.toDetails(): PersistedInterceptionDetails = PersistedInterceptionDetails.create(
-    sandboxKey,
-    serviceKey,
-    redirectHost = redirectHost
-).also {
-    it.addTenant(tenantId)
+fun CreateInterceptionRequest.toDetails(): PersistedInterceptionDetails = if (localhostRedirect) {
+    PersistedInterceptionDetails.localhostRedirect(
+        sandboxKey,
+        serviceKey,
+    ).also {
+        it.addTenant(tenantId)
+    }
+} else {
+    PersistedInterceptionDetails.create(
+        sandboxKey,
+        serviceKey,
+        redirectHost = redirectHost
+    ).also {
+        it.addTenant(tenantId)
+    }
 }
 
 

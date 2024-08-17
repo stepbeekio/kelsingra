@@ -7,7 +7,8 @@ data class TenantInterceptionResponse(val data: List<InterceptionDetailResponse>
 data class InterceptionDetailResponse(
     val tenantId: TenantId,
     val sandboxKey: String,
-    val redirectHost: String
+    val redirectHost: String,
+    val isLocalhostRedirect: Boolean,
 ) {
-    fun toDetails(): InterceptionDetails = InterceptionDetails(tenantId, redirectHost)
+    fun toDetails(): InterceptionDetails = InterceptionDetails(tenantId, sandboxKey = sandboxKey, redirectHost = redirectHost, isLocalhostRedirect)
 }

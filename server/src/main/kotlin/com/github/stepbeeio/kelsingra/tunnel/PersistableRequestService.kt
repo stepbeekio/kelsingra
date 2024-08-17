@@ -1,5 +1,6 @@
 package com.github.stepbeeio.kelsingra.tunnel
 
+import com.github.stepbeeio.kelsingra.tenant.InterceptionDetailsRepository
 import org.slf4j.LoggerFactory
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Component
@@ -29,7 +30,7 @@ class PersistableRequestService(
             }
         }
 
-        return Response(503, "NO RESPONSE FROM SANDBOX")
+        return Response(503, mapOf(), "NO RESPONSE FROM SANDBOX")
     }
 
     fun respond(requestId: UUID, payload: Response) {

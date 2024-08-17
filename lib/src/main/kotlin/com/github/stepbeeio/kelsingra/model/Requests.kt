@@ -22,6 +22,7 @@ data class CreateInterceptionRequest(
     val sandboxKey: String,
     val serviceKey: String,
     val redirectHost: String,
+    val localhostRedirect: Boolean,
 )
 
 data class AddTenantRequest(
