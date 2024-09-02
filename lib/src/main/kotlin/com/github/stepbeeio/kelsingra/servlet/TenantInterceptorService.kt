@@ -1,9 +1,12 @@
 package com.github.stepbeeio.kelsingra.servlet
 
+import com.github.stepbeeio.kelsingra.model.BaggageKeys
 import com.github.stepbeeio.kelsingra.tunnel.Request
+import io.micrometer.tracing.Tracer
 import jakarta.annotation.PostConstruct
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
 import org.springframework.web.util.UriComponentsBuilder
 import java.net.URI
@@ -27,11 +30,13 @@ sealed class InterceptionResult {
 }
 
 interface TenantInterceptorService {
+    fun getHeader(): String?
     fun shouldIntercept(tenantId: TenantId): InterceptionResult
-    fun shouldProcessKafkaRecord(tenantId: TenantId): Boolean
+    fun shouldProcessKafkaRecord(tenantId: TenantId): InterceptionResult
     fun isMainline(): Boolean
 
     fun forwardLocalhost(details: InterceptionDetails, request: HttpServletRequest, response: HttpServletResponse)
+    fun forwardKafkaMessage(record1: InterceptionDetails, record: ConsumerRecord<Any, Any>)
 }
 
 interface Refreshable {
@@ -42,6 +47,7 @@ class InMemoryTenantInterceptor(
     private val serviceKey: String,
     private val sandboxKey: String,
     private val client: TenantInterceptionClient,
+    private val tracer: Tracer,
 ) : TenantInterceptorService, Refreshable {
     private val tenantResults: MutableMap<TenantId, InterceptionDetails> = ConcurrentHashMap()
     private var mainline: AtomicBoolean = AtomicBoolean(false)
@@ -50,6 +56,9 @@ class InMemoryTenantInterceptor(
     fun init() {
         logger.info("Starting up the interceptor for service [$serviceKey] and sandbox [$sandboxKey]")
     }
+
+    override fun getHeader(): String? =
+        tracer.getBaggage(BaggageKeys.TENANT_ID.value).get()
 
     override fun shouldIntercept(tenantId: TenantId): InterceptionResult {
         val details = tenantResults[tenantId]
@@ -62,8 +71,7 @@ class InMemoryTenantInterceptor(
         }
     }
 
-    override fun shouldProcessKafkaRecord(tenantId: TenantId): Boolean =
-        tenantResults[tenantId] == null
+    override fun shouldProcessKafkaRecord(tenantId: TenantId): InterceptionResult = TODO()
 
     override fun isMainline(): Boolean = mainline.get()
 
@@ -77,6 +85,10 @@ class InMemoryTenantInterceptor(
         val res = client.forward(req)
 
         res.writeTo(response)
+    }
+
+    override fun forwardKafkaMessage(record1: InterceptionDetails, record: ConsumerRecord<Any, Any>) {
+        TODO("Not yet implemented")
     }
 
     override fun refresh() {
@@ -96,9 +108,12 @@ class InMemoryTenantInterceptor(
 }
 
 object NoOpInterceptorService : TenantInterceptorService {
-    override fun shouldIntercept(tenantId: TenantId): InterceptionResult = InterceptionResult.NoOp
+    override fun getHeader(): String? = null
 
-    override fun shouldProcessKafkaRecord(tenantId: TenantId): Boolean = true
+    override fun shouldIntercept(tenantId: TenantId): InterceptionResult = InterceptionResult.NoOp
+    override fun shouldProcessKafkaRecord(tenantId: TenantId): InterceptionResult {
+        TODO("Not yet implemented")
+    }
 
     override fun isMainline(): Boolean = true
     override fun forwardLocalhost(
@@ -106,5 +121,9 @@ object NoOpInterceptorService : TenantInterceptorService {
         request: HttpServletRequest,
         response: HttpServletResponse
     ) {}
+
+    override fun forwardKafkaMessage(record1: InterceptionDetails, record: ConsumerRecord<Any, Any>) {
+        TODO("Not yet implemented")
+    }
 }
 

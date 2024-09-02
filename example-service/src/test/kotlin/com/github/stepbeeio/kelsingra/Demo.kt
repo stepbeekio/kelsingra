@@ -1,5 +1,6 @@
 package com.github.stepbeeio.kelsingra
 
+import com.github.stepbeeio.kelsingra.model.BaggageKeys
 import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType
 import org.springframework.web.client.RestClient
@@ -38,7 +39,8 @@ class Demo {
         }
 
         println("Calling dev example service with review tenant id")
-        devClient.get().uri("/example?name=Stephen").header("x-tenant-id", reviewTenant).exchange { _, clientResponse ->
+        devClient.get().uri("/example?name=Stephen").header("baggage", "${BaggageKeys.TENANT_ID.value}=${reviewTenant}")
+            .exchange { _, clientResponse ->
             val body = clientResponse.body.readAllBytes().decodeToString()
             println(body)
         }
@@ -50,7 +52,7 @@ class Demo {
         }
 
         println("Posting example service with review tenant id")
-        devClient.post().uri("/example?name=Stephen").header("x-tenant-id", reviewTenant)
+        devClient.post().uri("/example?name=Stephen").header("baggage", "${BaggageKeys.TENANT_ID.value}=${reviewTenant}")
             .exchange { _, clientResponse ->
                 val body = clientResponse.body.readAllBytes().decodeToString()
                 println(body)

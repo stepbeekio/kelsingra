@@ -43,3 +43,21 @@ kotlin {
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+task dev(type: org.springframework.boot.gradle.tasks.run.BootRun) {
+	mainClass = "com.github.stepbeeio.kelsingra.ExampleDevApplicationKt"
+	classpath = bootRun.classpath
+	jvmArgs "-javaagent:../bin/dd-java-agent.jar"
+}
+
+task review(type: org.springframework.boot.gradle.tasks.run.BootRun) {
+	mainClass = "com.github.stepbeeio.kelsingra.ExampleReviewAppKt"
+	classpath = bootRun.classpath
+	jvmArgs "-javaagent:../bin/dd-java-agent.jar"
+}
+
+task otherReview(type: org.springframework.boot.gradle.tasks.run.BootRun) {
+	mainClass = "com.github.stepbeeio.kelsingra.ExampleOtherReviewAppKt"
+	classpath = bootRun.classpath
+	jvmArgs "-javaagent:../bin/dd-java-agent.jar"
+}

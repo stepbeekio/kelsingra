@@ -1,5 +1,6 @@
 package com.github.stepbeeio.kelsingra.kafka
 
+import com.github.stepbeeio.kelsingra.servlet.InterceptionResult
 import com.github.stepbeeio.kelsingra.servlet.NoOpInterceptorService
 import com.github.stepbeeio.kelsingra.servlet.TenantId
 import com.github.stepbeeio.kelsingra.servlet.TenantInterceptorService
@@ -33,7 +34,14 @@ class TenantConsumerInterceptor : ConsumerInterceptor<Any, Any> {
                 if (header == null) {
                     interceptorService.isMainline()
                 } else {
-                    interceptorService.shouldProcessKafkaRecord(TenantId(header.value().decodeToString()))
+                    when (val result = interceptorService.shouldProcessKafkaRecord(TenantId(header.value().decodeToString()))) {
+                        is InterceptionResult.Intercept -> false
+                        is InterceptionResult.LocalhostInterception -> {
+                            interceptorService.forwardKafkaMessage(result.details, record)
+                            false
+                        }
+                        InterceptionResult.NoOp -> true
+                    }
                 }
             }
             .groupBy { TopicPartition(it.topic(), it.partition()) }

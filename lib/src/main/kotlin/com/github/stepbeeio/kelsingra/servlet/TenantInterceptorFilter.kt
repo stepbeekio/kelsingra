@@ -1,5 +1,7 @@
 package com.github.stepbeeio.kelsingra.servlet
 
+import com.github.stepbeeio.kelsingra.model.BaggageKeys
+import io.micrometer.tracing.Tracer
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
@@ -11,15 +13,17 @@ import org.springframework.web.util.UriComponentsBuilder
 class TenantInterceptorFilter(
     private val headerName: String,
     private val tenantInterceptorService: TenantInterceptorService,
+    private val tracer: Tracer,
 ) : OncePerRequestFilter() {
     private val client = RestClient.create()
+
 
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
         filterChain: FilterChain
     ) {
-        val tenantId = request.getHeader(headerName)
+        val tenantId = tenantInterceptorService.getHeader()
 
         if (tenantId != null) {
             when (val result = tenantInterceptorService.shouldIntercept(TenantId(tenantId))) {
@@ -28,7 +32,12 @@ class TenantInterceptorFilter(
                     intercept(result.details, request, response)
                 }
 
-                is InterceptionResult.LocalhostInterception -> tenantInterceptorService.forwardLocalhost(result.details, request, response)
+                is InterceptionResult.LocalhostInterception -> tenantInterceptorService.forwardLocalhost(
+                    result.details,
+                    request,
+                    response
+                )
+
                 InterceptionResult.NoOp -> filterChain.doFilter(request, response)
             }
         } else {
@@ -38,8 +47,9 @@ class TenantInterceptorFilter(
 
 
     private fun intercept(details: InterceptionDetails, request: HttpServletRequest, response: HttpServletResponse) {
-        val redirectUrl = UriComponentsBuilder.fromHttpUrl(details.uriFromOriginal(request.requestURI)).query(request.queryString)
-            .build().toUriString()
+        val redirectUrl =
+            UriComponentsBuilder.fromHttpUrl(details.uriFromOriginal(request.requestURI)).query(request.queryString)
+                .build().toUriString()
 
         client.method(HttpMethod.valueOf(request.method))
             .uri(redirectUrl)
